@@ -1,16 +1,16 @@
-from enum import Flag, auto
+from enum import Enum, auto
 from pprint import pprint
 
 from Server.user import User
 
-class CMD(Flag):
+class CMD(Enum):
     # General
+    HELP = auto(),
+    QUIT = auto(),
+    UPDATE = auto(),
     INVALID = auto(),
     CONTINUE = auto(),
-    HELP = auto(),
-    UPDATE = auto(),
-    QUIT = auto(),
-    
+
     # Low-Level
     INFO = auto(),
     RATING = auto()
@@ -21,6 +21,7 @@ class CMD(Flag):
     
     def toCMD(cmd : str) -> CMD:
         if(cmd == "") : return CMD.CONTINUE
+        if(cmd == "q" or cmd == "Q") : return CMD.QUIT
         try:
             return CMD[cmd.upper()]
         except KeyError:
@@ -29,17 +30,16 @@ class CMD(Flag):
 
 inp = ">>>"
 def start() :
-    quit = False
     handle = None
-    while not(quit) :
-        while handle==None:
-            try:
-                handle = input(f"{inp} Enter your codeforces handle: ")
-            except KeyboardInterrupt:
-                print("\n:(")
-                exit(-1)
-
-        _main(User(handle, True))
+    while handle==None:
+        try:
+            handle = input(f"{inp} Enter your codeforces handle: ")
+        except KeyboardInterrupt:
+            print("\n:(")
+            exit(-1)
+    user = User(handle)
+    while 1 :
+        _main(user)
 
 
 def _main(user : User) :
@@ -71,6 +71,8 @@ def _main(user : User) :
             for name, member in CMD.__members__.items():
                 print(name)
         case CMD.UPDATE:
-            print(default)
+            user.getData()
         case CMD.INVALID:
             print("Invalid INPUT! Type HELP for help!")
+        case CMD.CONTINUE:
+            pass

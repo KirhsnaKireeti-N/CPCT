@@ -13,9 +13,19 @@ class User:
     
     # var => str:handle, dict:info, dict:rating
     
-    def __init__(self, handle : str, format_flag : bool = False):
+    def __init__(self, handle : str):
         self.handle = handle
         
+        self.pathDB = DATABASE_PATH / self.handle
+        self.pathDB.mkdir(parents=True, exist_ok=True)
+        
+        # Data : "info", "rating"
+        if(self._fromDB()) : return
+        self.getData()
+
+    
+    # Get Data
+    def getData(self) :
         response = requests.get(
             self._api["info"], 
             params={"handles": self.handle}
@@ -26,26 +36,32 @@ class User:
             self._api["rating"],
             params={"handle" : self.handle}
         )
-        self.rating = self._check(response) # Also initializes self.rating
+        self.rating = self._check(response)
         
-        if(format_flag) : 
-            self._format()
-            self.addDB()
-
+        self._format()
+        self._addDB()
     
     # DataBase Stuff
-    def addDB(user : User) :
-        path = DATABASE_PATH / user.handle
-        path.mkdir(parents=True, exist_ok=True)
-        
-        with open(path / "info.json", "w") as f:
+    def _addDB(self) :
+        with open(self.pathDB / "info.json", "w") as f:
             #json.dump(user.info, f)
-            json.dump(user.info, f, indent=4)
-        with open(path / "rating.json", "w") as f:
+            json.dump(self.info, f, indent=4)
+        with open(self.pathDB / "rating.json", "w") as f:
             #json.dump(user.info, f)
-            json.dump(user.rating, f, indent=4)
+            json.dump(self.rating, f, indent=4)
     
     
+    def _fromDB(self) -> bool:
+        if self.pathDB.exists() :
+            with open(self.pathDB / "info.json", "r") as f:
+                self.info = json.load(f)[0]
+            with open(self.pathDB / "rating.json", "r") as f:
+                self.rating = json.load(f)
+            return True
+        else :
+            return False
+    
+    # Format
     def _format(self):
         # Formatting info:
         self.info.pop("contribution")
