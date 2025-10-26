@@ -80,7 +80,7 @@ def export_json(user : User, args, flags : dict):
         )
 
 def export_csv(user, args, flags):
-    pass
+    print("Feature not yet available!")
 
 def export_help(user, args, flags):
     print(
