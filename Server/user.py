@@ -16,8 +16,8 @@ class User:
     def __init__(self, handle : str):
         self.handle = handle
         
+        DATABASE_PATH.mkdir(parents=True, exist_ok=True)
         self.pathDB = DATABASE_PATH / self.handle
-        self.pathDB.mkdir(parents=True, exist_ok=True)
         
         # Data : "info", "rating"
         if(self._fromDB()) : return
@@ -43,6 +43,7 @@ class User:
     
     # DataBase Stuff
     def _addDB(self) :
+        self.pathDB.mkdir(parents=True, exist_ok=True)
         with open(self.pathDB / "info.json", "w") as f:
             #json.dump(user.info, f)
             json.dump(self.info, f, indent=4)
@@ -54,7 +55,7 @@ class User:
     def _fromDB(self) -> bool:
         if self.pathDB.exists() :
             with open(self.pathDB / "info.json", "r") as f:
-                self.info = json.load(f)[0]
+                self.info = json.load(f)
             with open(self.pathDB / "rating.json", "r") as f:
                 self.rating = json.load(f)
             return True

@@ -1,32 +1,8 @@
 from enum import Enum, auto
 from pprint import pprint
 
-from Server.user import User
-
-class CMD(Enum):
-    # General
-    HELP = auto(),
-    QUIT = auto(),
-    UPDATE = auto(),
-    INVALID = auto(),
-    CONTINUE = auto(),
-
-    # Low-Level
-    INFO = auto(),
-    RATING = auto()
-    
-    # High-Level
-    OVERVIEW = auto(),
-    
-    
-    def toCMD(cmd : str) -> CMD:
-        if(cmd == "") : return CMD.CONTINUE
-        if(cmd == "q" or cmd == "Q") : return CMD.QUIT
-        try:
-            return CMD[cmd.upper()]
-        except KeyError:
-            return CMD.INVALID
-    
+from Server.user import User    
+from CLI.CMD import *
 
 inp = ">>>"
 def start() :
@@ -44,35 +20,59 @@ def start() :
 
 def _main(user : User) :
     try:
-        command = CMD.toCMD(input(f"{inp} "))
+        command = input(f"{inp} ")
+        if(command==None) : return
     except KeyboardInterrupt:
         print("\n:(")
         exit(-1)
-
-    default = "Feature not yet available"
+        
+    # command = main sub [args...] [--flags] [-shortflags]
+    command = command.strip().lower().split()
     
-    match command:
-        # Low-Level
-        case CMD.INFO:
-            pprint(user.info)
-        case CMD.RATING:
-            pprint(user.rating)
+    n = len(command)
+    args = []
+    flags = {}
+    if(n==1) :
+        main = command[0]
+        if(main not in CMD) : 
+            CMD["invalid"]()
+        else : 
+            CMD[main]()
+    elif(n==2) :
+        main = command[0]
+        if(main not in CMD) : 
+            CMD["invalid"]()
+            return
+        sub = command[1]
+        if sub not in CMD[main] : 
+            CMD[main]["invalid"]()
+            return
+        CMD[main][sub](user, args, flags)
+    else :
+        main = command[0]
+        if(main not in CMD) : 
+            CMD["invalid"]()
+            return
         
-        # High-Level
-        case CMD.OVERVIEW:
-            pprint(user.info)
-            pprint(user.rating)
-        
-        # General
-        case CMD.QUIT:
-            print("GO WORK YOU IDIOT!")
-            exit(-1)
-        case CMD.HELP:
-            for name, member in CMD.__members__.items():
-                print(name)
-        case CMD.UPDATE:
-            user.getData()
-        case CMD.INVALID:
-            print("Invalid INPUT! Type HELP for help!")
-        case CMD.CONTINUE:
-            pass
+        i = 1
+        first = True
+        while i < len(command):
+            part = command[i]
+            if part.startswith('-'):
+                flags[part] = True
+            if part.startswith('--'):
+                if '=' in part:
+                    key, value = part.split("=")
+                    print(key, value)
+                    flags[key] = value
+                else:
+                    flags[part] = True
+            else:
+                if(first) :
+                    sub = part
+                    first = False
+                else:
+                    args.append(part)
+            i+=1
+        CMD[main][sub](user, args, flags)
+
