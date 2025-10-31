@@ -1,8 +1,5 @@
-from enum import Enum, auto
-from pprint import pprint
-
 from Server.user import User    
-from CLI.CMD import *
+from CLI.functions import CMD
 
 inp = ">>>"
 def start() :
@@ -13,7 +10,7 @@ def start() :
         except KeyboardInterrupt:
             print("\n:(")
             exit(-1)
-    user = User(handle)
+    user = User(handle, True)
     while 1 :
         _main(user)
 
@@ -34,7 +31,7 @@ def _main(user : User) :
     flags = {}
     if(n==1) :
         main = command[0]
-        if(main not in CMD) : 
+        if(main not in CMD) or (isinstance(CMD[main], dict)) : 
             CMD["invalid"]()
         else : 
             CMD[main]()

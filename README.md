@@ -1,11 +1,14 @@
 # CPCT (Competitve Programming Codeforces Tracker)
 
-* Dependencies:
-Uses *requests* moudule to get json formatted data from Codeforces.
+### Dependencies:
 
-**Tools available**:
+* Uses *requests* moudule to get json formatted data from Codeforces.
 
-### CLI
+
+
+### Tools available:
+
+#### CLI
 
 * Commands:
 
@@ -13,5 +16,5 @@ Uses *requests* moudule to get json formatted data from Codeforces.
   * clear
   * export
 
-Type *<command_name> help* to understand what the command provides!
+Type *<command\_name> -h* to understand what the command provides!
 
